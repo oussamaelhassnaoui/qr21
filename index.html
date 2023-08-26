@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Generator</title>
+  <style>
+    /* Add your CSS styles here */
+  </style>
+</head>
+<body>
+  <h1>QR Code Generator</h1>
+  
+  <form id="qrForm">
+    <label for="urlInput">Enter URL:</label>
+    <input type="text" id="urlInput" name="url" required>
+    
+    <label for="imageInput">Upload Image:</label>
+    <input type="file" id="imageInput" name="image">
+    
+    <button type="submit">Generate QR Code</button>
+  </form>
+  
+  <div id="qrCodeContainer">
+    <img id="qrCodeImage" src="" alt="Generated QR Code">
+    <a id="downloadLink" download="generated_qr_code.png">
+      <button id="downloadButton" style="display: none;">Download QR Code</button>
+    </a>
+  </div>
+  
+  <script>
+    document.getElementById('qrForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      
+      const url = document.getElementById('urlInput').value;
+      const imageInput = document.getElementById('imageInput');
+      
+      if (url && imageInput.files[0]) {
+        const formData = new FormData();
+        formData.append('words', url);
+        formData.append('picture', imageInput.files[0]);
+        
+        fetch('/generate_qr', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          const qrCodeImage = document.getElementById('qrCodeImage');
+          qrCodeImage.src = URL.createObjectURL(blob);
+          
+          const downloadLink = document.getElementById('downloadLink');
+          const downloadButton = document.getElementById('downloadButton');
+          downloadLink.href = qrCodeImage.src;
+          downloadButton.style.display = 'block';
+        })
+        .catch(error => console.error('Error generating QR code:', error));
+      }
+    });
+  </script>
+</body>
+</html>
